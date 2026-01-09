@@ -11,6 +11,7 @@ Based on the system instruction for Macedonian Olympiad mathematics education.
 import os
 import json
 import re
+import subprocess
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -195,66 +196,151 @@ label("$r$", center + (1.5, 0.5));
         else:
             return "Geometric shapes on coordinate plane, clean mathematical illustration, educational style, no text."
 
-    def generate_worksheet_content(self, problem_text: str, problem_title: str) -> str:
+    def process_problem(self, problem_text: str, problem_id: str, problem_title: str) -> Dict:
         """
-        Generate educational worksheet content with scaffolding.
+        Main processing function - generates complete educational package.
+
+        Returns:
+            Dict with keys: asy_code, worksheet_md, image_path, compiled_success
         """
-        # Extract Macedonian problem text (placeholder)
-        adapted_text = problem_text  # In real implementation, translate/adapt
+        result = {
+            'asy_code': '',
+            'worksheet_md': '',
+            'image_path': '',
+            'compiled_success': False
+        }
 
-        # Generate scaffolding
-        scaffolding = []
-
-        if "триаголник" in problem_text.lower():
-            scaffolding.extend([
-                "* **Потребни Формули:** Питагорова теорема $c^2 = a^2 + b^2$",
-                "* **Совет:** Нацртај ги аглите и означете ги познатите страни",
-                "* **Клучен чекор:** Одреди кој агол е прав"
-            ])
-
-        worksheet = f"""### 2. СОДРЖИНА ЗА РАБОТНИОТ ЛИСТ (За Ученикот)
-
-**Наслов на лекцијата/темата: {problem_title}**
-
-**Текст на задачата:**
-{adapted_text}
-
-**Паткази и Стратегија (Scaffolding):**
-{chr(10).join(f'* {item}' for item in scaffolding)}
-
-*(Крај на задачата - Нема решение)*
-"""
-        return worksheet
-
-    def process_problem(self, problem_text: str, problem_id: str, problem_title: str) -> str:
-        """
-        Main processing function following the system instruction structure.
-        """
         # Generate Asymptote code
         asy_code = self.generate_asymptote_code(problem_text, problem_id)
 
-        # Generate Nano Banana prompt
-        nb_prompt = self.generate_nano_banana_prompt(problem_text)
+        # Save Asymptote code
+        self.save_diagram(problem_id, asy_code)
+        result['asy_code'] = asy_code
 
-        # Generate worksheet content
-        worksheet = self.generate_worksheet_content(problem_text, problem_title)
+        # Attempt compilation
+        compiled_path = self.compile_diagram(problem_id)
+        result['image_path'] = compiled_path
+        result['compiled_success'] = compiled_path is not None
 
-        # Combine into final output
-        output = f"""### 1. ВИЗУЕЛНИ РЕСУРСИ (За Дизајнерот)
-> **Asymptote Code (Recreation):**
-> ```asy
-{asy_code}
-> ```
+        # Generate worksheet content with embedded image
+        worksheet = self.generate_worksheet_content_with_image(problem_text, problem_title, compiled_path)
+        self.save_worksheet(problem_id, worksheet)
+        result['worksheet_md'] = worksheet
 
-> **Nano Banana Prompt (Context):**
-> {nb_prompt}
+        return result
+
+    def compile_diagram(self, problem_id: str) -> Optional[str]:
+        """Compile Asymptote diagram and return path to generated PDF."""
+        asy_file = self.diagrams_dir / f"{problem_id}.asy"
+        pdf_file = self.diagrams_dir / f"{problem_id}.pdf"
+
+        if not asy_file.exists():
+            print(f"✗ Asymptote file not found: {asy_file}")
+            return None
+
+        try:
+            # Run asy compilation
+            result = subprocess.run(
+                ["asy", "-f", "pdf", str(asy_file)],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+
+            if result.returncode == 0 and pdf_file.exists():
+                print(f"✓ Compiled diagram: {pdf_file}")
+                return str(pdf_file)
+            else:
+                print(f"✗ Compilation failed: {result.stderr}")
+                return None
+
+        except Exception as e:
+            print(f"✗ Compilation error: {e}")
+            return None
+
+    def generate_worksheet_content_with_image(self, problem_text: str, problem_title: str, image_path: Optional[str]) -> str:
+        """
+        Generate worksheet content with embedded image reference.
+        Optimized for SimpleTex and Word/InDesign export.
+        """
+        # Adapted problem text (placeholder for translation)
+        adapted_text = self.adapt_to_macedonian(problem_text)
+
+        # Generate scaffolding
+        scaffolding = self.generate_scaffolding(problem_text)
+
+        # Image reference for Markdown
+        image_ref = ""
+        if image_path:
+            image_ref = f'\n![Геометриска конструкција]({image_path})\n'
+
+        worksheet = f"""# {problem_title}
+
+## 📐 Геометриска Конструкција
+{image_ref}
+
+## 📝 Текст на Задачата
+{adapted_text}
+
+## 🧠 Стратегија и Насоки
+{chr(10).join(f'* {item}' for item in scaffolding)}
+
+## 💡 Практични Совети
+* Користи геометриски инструменти за прецизно цртање
+* Означи ги сите познати и непознати елементи
+* Провери ги конструкциите со мерење
 
 ---
-
-{worksheet}
+*Работен лист генериран со AI - Educational Content Architect & Geometry Visualizer*
 """
 
-        return output
+        return worksheet
+
+    def adapt_to_macedonian(self, problem_text: str) -> str:
+        """
+        Adapt problem text to Macedonian educational standards.
+        Placeholder - in real implementation, use translation AI.
+        """
+        # Basic adaptations
+        adapted = problem_text
+
+        # Localize names (example)
+        adapted = adapted.replace("triangle", "триаголник")
+        adapted = adapted.replace("circle", "кружница")
+        adapted = adapted.replace("parallel", "паралелни")
+
+        # Add Macedonian LaTeX formatting
+        adapted = re.sub(r'(\w+)\s*\^\s*(\w+)', r'$\1^{\circ}$', adapted)  # 30^o -> 30°
+        adapted = re.sub(r'(\d+)\s*degrees?', r'$\1^{\circ}$', adapted)
+
+        return adapted
+
+    def generate_scaffolding(self, problem_text: str) -> List[str]:
+        """Generate educational scaffolding hints."""
+        hints = []
+
+        if "триаголник" in problem_text.lower():
+            hints.extend([
+                "**Потребни Формули:** Питагорова теорема $c^2 = a^2 + b^2$",
+                "**Совет:** Нацртај ги аглите и означете ги познатите страни",
+                "**Клучен чекор:** Одреди кој агол е прав"
+            ])
+
+        if "круг" in problem_text.lower():
+            hints.extend([
+                "**Формула:** Плоштина $P = \\pi r^2$, Периметар $O = 2\\pi r$",
+                "**Совет:** Центарот е клучна точка за симетрии",
+                "**Клучен чекор:** Повлечи радиуси до пресечните точки"
+            ])
+
+        if "паралелни" in problem_text.lower():
+            hints.extend([
+                "**Својство:** Наизменични агли се еднакви",
+                "**Совет:** Користи транспарентна хартија за проверка",
+                "**Клучен чекор:** Повлечи трансверзала"
+            ])
+
+        return hints
 
     def save_diagram(self, problem_id: str, asy_code: str):
         """Save Asymptote code to diagrams directory."""
@@ -297,36 +383,13 @@ def main():
     # Process problem
     result = visualizer.process_problem(problem_text, args.problem_id, args.title)
 
-    # Extract and save components
-    lines = result.split('\n')
-
-    # Find Asymptote code
-    asy_start = None
-    asy_end = None
-    for i, line in enumerate(lines):
-        if "```asy" in line:
-            asy_start = i + 1
-        elif asy_start and "```" in line and i > asy_start:
-            asy_end = i
-            break
-
-    if asy_start and asy_end:
-        asy_code = '\n'.join(lines[asy_start:asy_end])
-        visualizer.save_diagram(args.problem_id, asy_code)
-
-    # Find worksheet content
-    worksheet_start = None
-    for i, line in enumerate(lines):
-        if "### 2. СОДРЖИНА ЗА РАБОТНИОТ ЛИСТ" in line:
-            worksheet_start = i
-            break
-
-    if worksheet_start:
-        worksheet_content = '\n'.join(lines[worksheet_start:])
-        visualizer.save_worksheet(args.problem_id, worksheet_content)
-
     print("✓ Processing complete!")
-    print(result)
+    print(f"Asymptote code saved to diagrams/{args.problem_id}.asy")
+    print(f"Worksheet saved to worksheets/{args.problem_id}_worksheet.md")
+    if result['compiled_success']:
+        print(f"PDF compiled: {result['image_path']}")
+    else:
+        print("PDF compilation failed")
 
 if __name__ == "__main__":
     main()
