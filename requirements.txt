@@ -1,0 +1,18 @@
+# Python dependencies for diagram generation and processing
+
+# Web scraping and API calls (if needed for problem data)
+requests>=2.28.0
+
+# Data processing
+pandas>=1.5.0
+
+# Configuration and logging
+python-dotenv>=0.19.0
+
+# Optional: AI/ML libraries if implementing local generation
+# openai>=1.0.0
+# transformers>=4.20.0
+
+# Development and testing
+pytest>=7.0.0
+black>=22.0.0
