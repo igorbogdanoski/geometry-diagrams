@@ -1,45 +1,42 @@
 settings.outformat = "pdf";
-settings.prc = false; // Better LaTeX compatibility
-defaultpen(linewidth(1pt) + fontsize(10pt)); // LaTeX font consistency
+settings.prc = false; 
 import geometry;
 
-// Professional dot sizing (Group 13)
+// Professional configuration from the guide
+unitsize(1.5cm);
 dotfactor = 4;
-
-// Canvas size for optimal display
-size(250);
+defaultpen(linewidth(0.8pt) + fontsize(10pt));
 
 // Point O at origin
 point O = (0, 0);
 
-// Ray directions (angles in degrees) - mathematically precise
-real len = 4; // Extended length for clarity
-pair A = O + len * dir(0);   // 0° - x-axis
-pair B = O + len * dir(90);  // 90° - y-axis
-pair C = O + len * dir(54);  // 54° = 3×18°
-pair D = O + len * dir(324); // 324° = 90° - 7×18°
+// Ray directions - mathematically precise using unitsize
+real len = 3; 
+path rayA = O -- (O + len * dir(0));
+path rayB = O -- (O + len * dir(90));
+path rayC = O -- (O + len * dir(54));
+path rayD = O -- (O + len * dir(324));
 
-// Draw rays with professional styling
-draw(O--A, black + linewidth(1.2pt));
-draw(O--B, black + linewidth(1.2pt));
-draw(O--C, black + linewidth(1.2pt));
-draw(O--D, black + linewidth(1.2pt));
+// Draw rays
+draw(rayA, black + linewidth(1pt));
+draw(rayB, black + linewidth(1pt));
+draw(rayC, black + linewidth(1pt));
+draw(rayD, black + linewidth(1pt));
 
-// Right angle markers - automatic and precise (Group 5)
-markrightangle(A, O, B, size=0.25cm);
-markrightangle(C, O, D, size=0.25cm);
+// Right angle markers (Group 5)
+markrightangle(point(rayA, 1), O, point(rayB, 1), size=0.3cm);
+markrightangle(point(rayC, 1), O, point(rayD, 1), size=0.3cm);
 
-// Enhanced angle markings with markangle (Group 9)
-markangle("$3x^\circ$", n=1, A, O, C, radius=35, p=red, StickIntervalMarker(1,2,size=4));
-markangle("$7x^\circ$", n=1, B, O, D, radius=35, p=blue, StickIntervalMarker(1,2,size=4));
+// Angle markings
+markangle(n=1, point(rayA, 1), O, point(rayC, 1), radius=0.8cm, p=red);
+markangle(n=1, point(rayB, 1), O, point(rayD, 1), radius=0.9cm, p=blue);
 
-// Professional labels with UnFill masking (Group 6, 13)
-dot(O); label("$O$", O, SW, UnFill(1mm));
-dot(A); label("$A$", A, E, UnFill(1mm));
-dot(B); label("$B$", B, N, UnFill(1mm));
-dot(C); label("$C$", C, NE, UnFill(1mm));
-dot(D); label("$D$", D, NW, UnFill(1mm));
+// Dots at key points
+dot(O);
+dot(point(rayA, 1));
+dot(point(rayB, 1));
+dot(point(rayC, 1));
+dot(point(rayD, 1));
 
-// Add mathematical context with minipage (Group 11, 13)
-label(minipage("\centering Задача 4:\\Во точката $O$ се спојуваат четири полуправи $OA, OB, OC, OD$.\\Познато е дека $OA \\perp OB$ и $OC \\perp OD$.\\Аглите: $\\angle AOC = 3x^\\circ$, $\\angle BOD = 7x^\\circ$.\\Одреди $x$ и аглите.", 6cm),
-      (0, -2.5), UnFill);
+// Note: Labels are currently disabled due to system limitations
+// label("$O$", O, SW); 

@@ -34,12 +34,15 @@ class GeometryVisualizer:
         self.diagrams_dir.mkdir(exist_ok=True)
         self.worksheets_dir.mkdir(exist_ok=True)
 
-        # Asymptote code templates
+        # Asymptote code templates (Professional Standards)
         self.asy_templates = {
             "basic_triangle": """
 settings.outformat = "pdf";
-size(200);
-defaultpen(linewidth(1pt));
+settings.prc = false;
+import geometry;
+unitsize(1cm);
+defaultpen(linewidth(0.8pt) + fontsize(10pt));
+dotfactor = 4;
 
 // Triangle vertices
 pair A = (0, 0);
@@ -49,18 +52,20 @@ pair C = (2, 3);
 // Draw triangle
 draw(A--B--C--cycle, black);
 
-// Labels
-label("$A$", A, SW);
-label("$B$", B, SE);
-label("$C$", C, N);
+// Labels (Note: currently problematic in some environments)
+// dot(A); label("$A$", A, SW);
+// dot(B); label("$B$", B, SE);
+// dot(C); label("$C$", C, N);
 
-// Optional: right angle marker at B
-draw((B.x, B.y)--(B.x+0.3, B.y)--(B.x+0.3, B.y+0.3), black);
+// Right angle marker
+markrightangle(A, B, C, size=0.2cm);
 """,
             "parallel_lines": """
 settings.outformat = "pdf";
-size(200);
-defaultpen(linewidth(1pt));
+settings.prc = false;
+import geometry;
+unitsize(1cm);
+defaultpen(linewidth(0.8pt) + fontsize(10pt));
 
 // Parallel lines
 pair A1 = (0, 2);
@@ -76,15 +81,14 @@ draw(A2--B2, black);
 pair P1 = (1, 2);
 pair P2 = (3, 0);
 draw(P1--P2, blue);
-
-// Labels
-label("$a$", B1, E);
-label("$b$", B2, E);
 """,
             "circle": """
 settings.outformat = "pdf";
-size(200);
-defaultpen(linewidth(1pt));
+settings.prc = false;
+import geometry;
+unitsize(1cm);
+defaultpen(linewidth(0.8pt) + fontsize(10pt));
+dotfactor = 4;
 
 // Circle
 pair center = (0, 0);
@@ -93,10 +97,8 @@ real radius = 2;
 // Draw circle
 draw(circle(center, radius), black);
 
-// Center and labels
+// Center
 dot(center);
-label("$O$", center, S);
-label("$r$", center + (1.5, 0.5));
 """
         }
 

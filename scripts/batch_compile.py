@@ -13,19 +13,20 @@ from pathlib import Path
 def compile_diagram(asy_file, output_dir="diagrams"):
     """Compile a single Asymptote file to PDF."""
     try:
-        # Run asy command
+        # Run asy command using standalone installation
+        asy_cmd = r"C:\Program Files\Asymptote\asy.exe"
         result = subprocess.run(
-            ["asy", "-f", "pdf", asy_file],
+            [asy_cmd, "-f", "pdf", asy_file],
             capture_output=True,
             text=True,
             cwd=output_dir
         )
 
         if result.returncode == 0:
-            print(f"✓ Compiled {asy_file}")
+            print(f"[OK] Compiled {asy_file}")
             return True
         else:
-            print(f"✗ Failed {asy_file}: {result.stderr}")
+            print(f"[FAIL] {asy_file}: {result.stderr}")
             return False
 
     except FileNotFoundError:
