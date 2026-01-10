@@ -7,8 +7,9 @@ This repository maintains high-quality Asymptote diagrams for geometry problems 
 ## Getting Started
 
 1. **Familiarize with Asymptote**: Read the [Asymptote documentation](https://asymptote.sourceforge.io/)
-2. **Study Examples**: Review existing diagrams in `diagrams/`
-3. **Follow Standards**: Use the established coding conventions
+2. **Professional Guide**: See [ASYMPTOTE_PROFESSIONAL_GUIDE.md](ASYMPTOTE_PROFESSIONAL_GUIDE.md) for advanced techniques
+3. **Study Examples**: Review existing diagrams in `diagrams/`
+4. **Follow Standards**: Use the established coding conventions
 
 ## Diagram Standards
 

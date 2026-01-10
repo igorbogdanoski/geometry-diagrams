@@ -1,0 +1,44 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{asymptote}
+
+\begin{document}
+
+\title{Test Asymptote Diagrams}
+\author{Geometry Diagrams Repository}
+\maketitle
+
+\section{Simple Test Diagram}
+
+\begin{asy}
+size(200);
+draw((0,0)--(1,0)--(1,1)--(0,1)--cycle);
+dot((0.5,0.5));
+label("$O$", (0.5,0.5));
+\end{asy}
+
+\section{Problem 4: Basic Version}
+
+\begin{asy}
+size(200);
+pair O = (0, 0);
+pair A = (2, 0);
+pair B = (0, 2);
+pair C = (1.5, 1.5);
+pair D = (-1, 1);
+
+draw(O--A, red);
+draw(O--B, blue);
+draw(O--C, green);
+draw(O--D, purple);
+
+dot(O); label("$O$", O);
+dot(A); label("$A$", A);
+dot(B); label("$B$", B);
+dot(C); label("$C$", C);
+dot(D); label("$D$", D);
+\end{asy}
+
+\end{document}
