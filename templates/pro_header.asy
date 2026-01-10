@@ -3,7 +3,7 @@
    Standards: Olympiad Math Archive
 */
 
-settings.outformat = "pdf";
+// settings.outformat = "pdf";
 settings.prc = false;
 settings.render = 16;
 
